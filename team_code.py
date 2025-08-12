@@ -21,6 +21,7 @@ from helper_code import *
 
 import random
 import pandas as pd
+from collections import Counter
 
 from scipy.signal import butter, filtfilt
 
@@ -97,10 +98,17 @@ def train_model(data_folder, model_folder, verbose):
     val_loader   = DataLoader(val_ds,   batch_size=32, shuffle=False, num_workers=0)
 
     model = ECGConv2D(n_classes=2)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    if verbose:
+        print("device: ", device)
+    counts = Counter(y_train)
+    w0 = 1.0 / counts[0]
+    w1 = 1.0 / counts[1]
+    class_weights = torch.tensor([w0, w1], dtype=torch.float32, device=device)
+
+    criterion = nn.CrossEntropyLoss(weight=class_weights)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
     for epoch in range(20):
         model.train()
@@ -115,7 +123,8 @@ def train_model(data_folder, model_folder, verbose):
             running_loss += loss.item() * xb.size(0)
 
         train_loss = running_loss / len(train_loader.dataset)
-    print(f"\nEpoch {epoch+1} | Train loss: {train_loss:.4f}")
+        if verbose:
+            print(f"\nEpoch {epoch+1} | Train loss: {train_loss:.4f}")
 
     best_f1 = -1.0
     best_epoch = -1
