@@ -97,11 +97,11 @@ def train_model(data_folder, model_folder, verbose):
     train_loader = DataLoader(train_ds, batch_size=32, shuffle=True, num_workers=0)
     val_loader   = DataLoader(val_ds,   batch_size=32, shuffle=False, num_workers=0)
 
-    model = ECGConv2D(n_classes=2)
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     if verbose:
         print("device: ", device)
+
+    model = ECGConv2D(n_classes=2).to(device)
     counts = Counter(y_train)
     w0 = 1.0 / counts[0]
     w1 = 1.0 / counts[1]
