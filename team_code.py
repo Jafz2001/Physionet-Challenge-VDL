@@ -18,7 +18,6 @@ from sklearn.model_selection import train_test_split
 import csv
 
 from helper_code import *
-from features_extractor import *
 
 import random
 import pandas as pd
