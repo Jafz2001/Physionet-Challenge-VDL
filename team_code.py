@@ -102,6 +102,7 @@ def train_model(data_folder, model_folder, verbose):
         print("device: ", device)
 
     model = ECGConv2D(n_classes=2).to(device)
+
     counts = Counter(y_train)
     w0 = 1.0 / counts[0]
     w1 = 1.0 / counts[1]
@@ -110,28 +111,12 @@ def train_model(data_folder, model_folder, verbose):
     criterion = nn.CrossEntropyLoss(weight=class_weights)
     optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
-    for epoch in range(20):
-        model.train()
-        running_loss = 0.0
-        for xb, yb in train_loader:
-            xb, yb = xb.to(device), yb.to(device)
-            optimizer.zero_grad()
-            logits = model(xb)
-            loss = criterion(logits, yb)
-            loss.backward()
-            optimizer.step()
-            running_loss += loss.item() * xb.size(0)
-
-        train_loss = running_loss / len(train_loader.dataset)
-        if verbose:
-            print(f"\nEpoch {epoch+1} | Train loss: {train_loss:.4f}")
-
-    best_f1 = -1.0
+    best_loss = 0.0
     best_epoch = -1
     os.makedirs(model_folder, exist_ok=True)
 
     # Training loop
-    epochs = 20
+    epochs = 50
     for epoch in range(epochs):
         model.train()
         running_loss = 0.0
@@ -151,25 +136,24 @@ def train_model(data_folder, model_folder, verbose):
 
         # --- Validación & métrica (F1) ---
         model.eval()
-        y_true, y_pred = [], []
+        val_loss = 0.0
         with torch.no_grad():
             for xb, yb in val_loader:
                 xb = xb.to(device)
+                yb = yb.to(device)
                 logits = model(xb)
-                pred = torch.argmax(logits, dim=1).cpu().numpy()
-                y_true.append(yb.numpy())
-                y_pred.append(pred)
-        y_true = np.concatenate(y_true); y_pred = np.concatenate(y_pred)
-        val_f1 = f1_score(y_true, y_pred) if len(np.unique(y_true)) > 1 else 0.0
+                val_loss += criterion(logits, yb)
+
+        val_loss /= len(val_loader)
 
         if verbose:
-            print(f"Epoch {epoch+1:02d} | Train loss: {train_loss:.4f} | Val F1: {val_f1:.4f}")
+            print(f"Epoch {epoch+1:02d} | Train loss: {train_loss:.4f} | Val loss: {val_loss:.4f}")
 
         # Guardar mejor por F1
-        if val_f1 > best_f1:
-            best_f1 = val_f1
+        if val_loss > best_loss:
+            best_loss = val_loss
             best_epoch = epoch + 1
-            save_model(model_folder, model, optimizer, epoch=best_epoch, extra={"val_f1": best_f1})
+            save_model(model_folder, model, optimizer, epoch=best_epoch, extra={"val_loss": best_loss})
 
     if verbose:
         print('Training complete.')
