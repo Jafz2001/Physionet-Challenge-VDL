@@ -1,9 +1,18 @@
 FROM python:3.10-slim-bullseye
 
-## DO NOT EDIT these 3 lines.
+# Requisitos del sistema (soundfile suele necesitar libsndfile1)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libsndfile1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Estructura del challenge
 RUN mkdir /challenge
 COPY ./ /challenge
 WORKDIR /challenge
 
-RUN pip3 install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cu126
-RUN pip3 install --no-cache-dir -r requirements.txt
+# Actualiza pip
+RUN python -m pip install --no-cache-dir --upgrade pip
+
+# Instala TODO desde requirements (incluido torch)
+COPY requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.txt
