@@ -1,5 +1,7 @@
---index-url https://download.pytorch.org/whl/cu124
-torch==2.5.1
+--extra-index-url https://download.pytorch.org/whl/cu126
+
+# PyTorch GPU (CUDA 12.4 embebido; sin sufijo +cu124)
+torch==2.7.0
 typing-extensions>=4.10,<5
 
 anyio==4.9.0
