@@ -1,3 +1,7 @@
+--index-url https://download.pytorch.org/whl/cu124
+torch==2.5.1
+typing-extensions>=4.10,<5
+
 anyio==4.9.0
 argon2-cffi==23.1.0
 argon2-cffi-bindings==21.2.0
@@ -17,17 +21,9 @@ isoduration==20.11.0
 joblib==1.4.2
 json5==0.12.0
 jsonpointer==3.0.0
-jupyter-events==0.12.0
-jupyter-lsp==2.2.5
-jupyter_server==2.15.0
-jupyter_server_terminals==0.5.3
-jupyterlab==4.3.6
-jupyterlab_server==2.27.3
 kiwisolver==1.4.8
 matplotlib==3.10.1
 neurokit2==0.2.10
-notebook==7.3.3
-notebook_shim==0.2.4
 numpy==2.2.4
 overrides==7.7.0
 pandas==2.2.3
