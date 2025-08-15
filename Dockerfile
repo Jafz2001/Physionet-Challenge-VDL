@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.8.6-slim
 
 # Requisitos del sistema (soundfile suele necesitar libsndfile1)
 RUN apt-get update && apt-get install -y --no-install-recommends \
