@@ -12,7 +12,4 @@ WORKDIR /challenge
 
 # Actualiza pip
 RUN python -m pip install --no-cache-dir --upgrade pip
-
-# Instala TODO desde requirements (incluido torch)
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
